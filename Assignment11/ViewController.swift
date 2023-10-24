@@ -7,20 +7,37 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
     
     //MARK: - IBOutlets
-    @IBOutlet weak var switchStateLabel: UILabel!
-    @IBOutlet weak var firstNumberTextField: UITextField!
-    @IBOutlet weak var secondNumberTextField: UITextField!
-    @IBOutlet weak var resultLabel: UILabel!
-    @IBOutlet weak var mySwitch: UISwitch!
-    @IBOutlet weak var calculateButton: UIButton!
+    @IBOutlet private weak var switchStateLabel: UILabel!
+    @IBOutlet private weak var firstNumberTextField: UITextField!
+    @IBOutlet private weak var secondNumberTextField: UITextField!
+    @IBOutlet private weak var resultLabel: UILabel!
+    @IBOutlet private weak var mySwitch: UISwitch!
+    @IBOutlet private weak var calculateButton: UIButton!
     
     //MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setup()
+    }
+    
+    //MARK: - IBActions
+    @IBAction private func switchStateChanged(_ sender: UISwitch) {
+        if !sender.isOn {
+            switchStateLabel.text = "Calculating LCM"
+        } else {
+            switchStateLabel.text = "Calculating GCD"
+        }
+    }
+    
+    @IBAction private func calculateButtonPressed(_ sender: UIButton) {
+        mySwitch.isOn ? calculateResultForGCD() : calculateResultForLCM()
+    }
+    
+    //MARK: - Methods
+    private func setup() {
         switchStateLabel.text = "Calculating GCD"
         firstNumberTextField.placeholder = "Enter first number"
         secondNumberTextField.placeholder = "Enter second number"
@@ -30,26 +47,7 @@ class ViewController: UIViewController {
         calculateButton.layer.masksToBounds = true
     }
     
-    
-    //MARK: - IBActions
-    @IBAction func switchStateChanged(_ sender: UISwitch) {
-        if !sender.isOn {
-            switchStateLabel.text = "Calculating LCM"
-        } else {
-            switchStateLabel.text = "Calculating GCD"
-        }
-    }
-    
-    @IBAction func calculateButtonPressed(_ sender: UIButton) {
-        if mySwitch.isOn {
-            calculateResultForGCD()
-        } else {
-            calculateResultForLCM()
-        }
-    }
-    
-    //MARK: - Methods
-    func calculateGCD(_ x: Int, _ y: Int) -> Int {
+    private func calculateGCD(_ x: Int, _ y: Int) -> Int {
         var a = 0
         var b = max(x, y)
         var r = min(x, y)
@@ -62,24 +60,22 @@ class ViewController: UIViewController {
         return b
     }
     
-    func calculateLCM(_ x: Int, _ y: Int) -> Int {
+    private func calculateLCM(_ x: Int, _ y: Int) -> Int {
         x / calculateGCD(x, y) * y
     }
     
-    func calculateResultForGCD() {
-        if let firstInputText = firstNumberTextField.text, let firstInputNumber = Int(firstInputText),
-           let secondInputText = secondNumberTextField.text, let secondInputNumber = Int(secondInputText) {
-            let result = calculateGCD(firstInputNumber, secondInputNumber)
-            resultLabel.text = "Result is \(result)"
-        } else {
-            resultLabel.text = "Invalid Input, try again."
-        }
+    private func calculateResultForGCD() {
+        calculateResult(using: calculateGCD)
     }
     
-    func calculateResultForLCM() {
+    private func calculateResultForLCM() {
+        calculateResult(using: calculateLCM)
+    }
+    
+    private func calculateResult(using calculationMethod: (Int, Int) -> Int) {
         if let firstInputText = firstNumberTextField.text, let firstInputNumber = Int(firstInputText),
            let secondInputText = secondNumberTextField.text, let secondInputNumber = Int(secondInputText) {
-            let result = calculateLCM(firstInputNumber, secondInputNumber)
+            let result = calculationMethod(firstInputNumber, secondInputNumber)
             resultLabel.text = "Result is \(result)"
         } else {
             resultLabel.text = "Invalid Input, try again."
